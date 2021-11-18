@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_notification1/model/apimodel.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-
-import 'model/portfolio.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,24 +23,30 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<Portfolio> _portfolio = [];
+  final List<Notificationapi> _portfolio = [];
   @override
   void initState() {
+    super.initState();
+
     fetchData().then((value) {
-      _portfolio.addAll(value);
+      setState(() {
+        _portfolio.addAll(value);
+      });
     });
   }
 
-  Future<List<Portfolio>> fetchData() async {
-    List<Portfolio> portfolio = [];
+  Future<List<Notificationapi>> fetchData() async {
+    List<Notificationapi> portfolio = [];
     // var portfolio = List<Portfolio>();
-    var response = await http.get('https://mock-json-service.glitch.me');
-    var jsonPortfolio = json.decode(response.body);
-    setState(() {
-      portfolio = jsonPortfolio
-          .map<Portfolio>((json) => new Portfolio.fromJson(json))
-          .toList();
-    });
+    var response = await http.post(
+        'https://ea2ff247-76d0-4e6c-b2d4-f064625de830.mock.pstmn.io/sparkangelmock/NotificationHistoryRequest');
+
+    //  var jsonPortfolio = await json.decode(response.body);
+
+    var data = welcomeFromJson(response.body);
+
+    portfolio = data.data.notifications;
+
     return portfolio;
   }
 
@@ -53,12 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
           elevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () => Navigator.of(context).pop(),
           ),
           backgroundColor: Colors.white,
-          title: Text('Notifications'),
-          titleTextStyle: TextStyle(
+          title: const Text('Notifications'),
+          titleTextStyle: const TextStyle(
             color: Colors.black,
             fontSize: 25.0,
           ),
@@ -67,12 +70,13 @@ class _MyHomePageState extends State<MyHomePage> {
             FlatButton(
               textColor: Colors.blue,
               onPressed: () {},
-              child: Text("MANAGE"),
-              shape: CircleBorder(side: BorderSide(color: Colors.transparent)),
+              child: const Text("MANAGE"),
+              shape: const CircleBorder(
+                  side: BorderSide(color: Colors.transparent)),
             )
           ]),
       body: ListView.builder(
-        padding: EdgeInsets.fromLTRB(9, 0, 9, 0),
+        padding: const EdgeInsets.fromLTRB(9, 0, 9, 0),
         itemBuilder: (context, index) {
           return Container(
             height: 150,
@@ -80,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Card(
               color: Colors.green[50],
               child: ListTile(
-                leading: Icon(
+                leading: const Icon(
                   Icons.account_box,
                   color: Colors.blue,
                   size: 50,
@@ -90,20 +94,27 @@ class _MyHomePageState extends State<MyHomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _portfolio[index].company,
-                      style: TextStyle(fontSize: 20),
+                      _portfolio[index].header,
+                      style: const TextStyle(fontSize: 16),
                     ),
                     SizedBox(
                       height: 5,
                     ),
-                    Text(_portfolio[index].description),
+                    Text(
+                      _portfolio[index].descriptions.toString(),
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     SizedBox(
                       height: 5,
                     ),
-                    Text(_portfolio[index].position),
+                    // Text(_portfolio[index].data.notifications[in].toString()),
+                    // SizedBox(
+                    //   height: 5,
+                    // ),
+                    // Text(_portfolio[index].position),
                   ],
                 ),
-                trailing: Text(_portfolio[index].location),
+                trailing: Text(_portfolio[index].timeSent),
               ),
             ),
           );
